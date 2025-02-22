@@ -44,4 +44,15 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    //InvalidJwtAuthenticationException
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleInvalidJwtAuthenticationException(InvalidJwtAuthenticationException ex) {
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("Invalid JWT token: " + ex.getMessage())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
 }

@@ -1,6 +1,7 @@
 package com.hoanghao.service.impl;
 
 import com.hoanghao.config.JwtProvider;
+import com.hoanghao.exception.InvalidJwtAuthenticationException;
 import com.hoanghao.model.User;
 import com.hoanghao.repository.UserRepository;
 import com.hoanghao.service.UserService;
@@ -17,7 +18,7 @@ public class UserServiceImpl implements UserService {
     private JwtProvider jwtProvider;
 
     @Override
-    public User findUserByJwtToken(String jwtToken) throws Exception {
+    public User findUserByJwtToken(String jwtToken) throws InvalidJwtAuthenticationException {
         String email = jwtProvider.getEmailFormJwt(jwtToken);
 
         User user = userRepository.findByEmail(email);

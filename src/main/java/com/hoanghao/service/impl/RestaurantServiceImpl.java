@@ -121,11 +121,13 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurantDto.setId(restaurant.getId());
 
         //comment
+        /*
         if (user.getFavorites().contains(restaurant)){
             user.getFavorites().remove(restaurant);
         } else {
             user.getFavorites().add(restaurantDto);
         }
+        */
         //comment
 
         boolean isFavorited = false;
@@ -137,6 +139,8 @@ public class RestaurantServiceImpl implements RestaurantService {
                 break;
             }
         }
+
+        // If the restaurant is already favorited, remove it; otherwise, add it to the favorites list
         if (!isFavorited) {
             favorites.add(restaurantDto);
         } else {
