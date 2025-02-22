@@ -46,7 +46,7 @@ public class AdminRestaurantController {
     public ResponseEntity<ApiResponse> updateRestaurant(
             @RequestBody CreateRestaurantRequest req,
             @RequestHeader("Authorization") String jwtToken,
-            @PathVariable("restaurantId") Long id
+            @PathVariable Long id
     ) throws Exception {
 
         User user = userService.findUserByJwtToken(jwtToken);
@@ -64,9 +64,8 @@ public class AdminRestaurantController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteRestaurant(
-            @RequestBody CreateRestaurantRequest req,
             @RequestHeader("Authorization") String jwtToken,
-            @PathVariable("restaurantId") Long id
+            @PathVariable Long id
     ) throws Exception {
 
         User user = userService.findUserByJwtToken(jwtToken);
@@ -76,6 +75,43 @@ public class AdminRestaurantController {
         ApiResponse apiResponse = ApiResponse.builder()
                 .data(null)
                 .message("Restaurant was deleted successfully!")
+                .status(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse> updateRestaurantStatus(
+            @RequestHeader("Authorization") String jwtToken,
+            @PathVariable Long id
+    ) throws Exception {
+
+        User user = userService.findUserByJwtToken(jwtToken);
+
+        Restaurant restaurant = restaurantService.updateRestaurantStatus(id);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(restaurant)
+                .message("Update status successfully")
+                .status(HttpStatus.OK.value())
+                .build();
+
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse> getRestaurantByUserId(
+            @RequestHeader("Authorization") String jwtToken
+    ) throws Exception {
+
+        User user = userService.findUserByJwtToken(jwtToken);
+
+        Restaurant restaurant = restaurantService.getRestaurantByUserId(user.getId());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(restaurant)
+                .message("Get restaurant by user successfully")
                 .status(HttpStatus.OK.value())
                 .build();
 
