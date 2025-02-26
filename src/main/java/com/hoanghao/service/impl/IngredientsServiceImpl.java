@@ -1,5 +1,6 @@
 package com.hoanghao.service.impl;
 
+import com.hoanghao.exception.ResourceNotFoundException;
 import com.hoanghao.model.IngredientCategory;
 import com.hoanghao.model.IngredientItem;
 import com.hoanghao.model.Restaurant;
@@ -8,10 +9,12 @@ import com.hoanghao.repository.IngredientItemRepository;
 import com.hoanghao.service.IngredientsService;
 import com.hoanghao.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class IngredientsServiceImpl implements IngredientsService {
 
     @Autowired
@@ -25,13 +28,17 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public IngredientCategory createIngredientCategory(String name, Long restaurantId) throws Exception {
-        Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
 
-        IngredientCategory ingredientCategory = new IngredientCategory();
-        ingredientCategory.setName(name);
-        ingredientCategory.setRestaurant(restaurant);
+            IngredientCategory ingredientCategory = new IngredientCategory();
+            ingredientCategory.setName(name);
+            ingredientCategory.setRestaurant(restaurant);
 
-        return ingredientCategoryRepository.save(ingredientCategory);
+            return ingredientCategoryRepository.save(ingredientCategory);
+        } catch (ResourceNotFoundException e) {
+            throw new RuntimeException("Restaurant not found with id: " + restaurantId);
+        }
     }
 
     @Override
@@ -52,18 +59,28 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public IngredientItem createIngredientItem(String ingredientName, Long categoryId, Long restaurantId) throws Exception {
-        Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
-        IngredientCategory ingredientCategory = findIngredientCategoryById(categoryId);
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
+            IngredientCategory ingredientCategory = findIngredientCategoryById(categoryId);
 
-        IngredientItem ingredientItem = new IngredientItem();
-        ingredientItem.setName(ingredientName);
-        ingredientItem.setRestaurant(restaurant);
-        ingredientItem.setCategory(ingredientCategory);
+            IngredientItem ingredientItem = new IngredientItem();
+            ingredientItem.setName(ingredientName);
+            ingredientItem.setRestaurant(restaurant);
+            ingredientItem.setCategory(ingredientCategory);
 
-        IngredientItem savedIngredientItem = ingredientItemRepository.save(ingredientItem);
-        ingredientCategory.getIngredients().add(savedIngredientItem);
+            IngredientItem savedIngredientItem = ingredientItemRepository.save(ingredientItem);
+            ingredientCategory.getIngredients().add(savedIngredientItem);
+            ingredientCategoryRepository.save(ingredientCategory);  // update the category with the new ingredient
 
-        return savedIngredientItem;
+            return savedIngredientItem;
+
+        } catch (ResourceNotFoundException e) {
+            throw new RuntimeException("Restaurant not found with id: " + restaurantId);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ingredient category not found with id: " + categoryId);
+
+        }
     }
 
     @Override
